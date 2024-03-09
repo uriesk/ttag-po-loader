@@ -1,15 +1,24 @@
 const parser = require("ttag-cli/dist/src/lib/parser");
-const utils = require("ttag-cli/dist/src/lib/utils");
 
 module.exports = function (source) {
   if (this.cacheable) this.cacheable();
+  const excludeFuzzy = this.getOptions().excludeFuzzy;
 
   let poData = parser.parse(source);
 
-  const messages = utils.iterateTranslations(poData.translations);
-  const header = messages.next().value;
-  delete header.comments;
-  for (const msg of messages) { delete msg.comments; }
+  for (const ctxt of Object.values(poData.translations)) {
+    for (const msgid of Object.keys(ctxt)) {
+      const msg = ctxt[msgid];
+      if (msg.comments) {
+        if (excludeFuzzy && msg.comments.flag
+          && msg.comments.flag.includes('fuzzy')) {
+          delete ctxt[msgid];
+        } else {
+          delete msg.comments;
+        }
+      }
+    }
+  }
 
   value = JSON.stringify(poData)
     .replace(/\u2028/g, '\\u2028')

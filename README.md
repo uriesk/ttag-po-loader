@@ -19,14 +19,30 @@ addLocale("en-GB`", en_GB);
 
 #### Webpack rules
 
-```js
-// 1. Tell webpack how to load PO files
-config.module.rules.push({
-test: [/\.po$/],
-loader: "ttag-po-loader",
-});
+1. Tell webpack how to load PO files
 
-// 2. Exempt PO files from default rules if you use create-react-app
+```js
+config.module.rules.push({
+  test: [/\.po$/],
+  loader: "ttag-po-loader",
+});
+```
+
+To exclude translations with the fuzzy flag, add option `excludeFuzzy` to loader:
+
+```js
+config.module.rules.push({
+  test: [/\.po$/],
+  loader: "ttag-po-loader",
+  options: {
+    excludeFuzzy: true,
+  },
+});
+```
+
+2. Exempt PO files from default rules if you use create-react-app
+
+```js
 const loaders = config.module.rules.find(r => r.oneOf).oneOf;
 loaders.find(l => l?.loader?.match(/file-loader/)).exclude.push(/[.]po$/);
 ```
